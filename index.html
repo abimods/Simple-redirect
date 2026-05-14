@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carregando...</title>
+    <style>
+        body { 
+            background: #121212; 
+            color: #ffffff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .loader { 
+            border: 4px solid #333; 
+            border-top: 4px solid #00f2ea; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #fe2c55;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none; /* Só aparece se o auto-redirect falhar */
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"></div>
+    <p id="status">Redirecionando para o site oficial...</p>
+    
+    <a href="https://bio.site/GabrielADM" class="btn" id="manual-btn">CLIQUE PARA ABRIR</a>
+
+    <script>
+        const target = "bio.site/GabrielADM";
+        const fullUrl = "https://" + target;
+
+        setTimeout(() => {
+            // Se for Android, tenta o Intent para abrir o Chrome direto
+            if (/Android/i.test(navigator.userAgent)) {
+                window.location.href = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
+            } else {
+                // Se for iOS ou PC, tenta o redirecionamento padrão
+                window.location.replace(fullUrl);
+            }
+
+            // Se após 3 segundos ainda estiver na página, mostra o botão manual
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('status').innerText = 'O TikTok bloqueou o redirecionamento automático.';
+                document.getElementById('manual-btn').style.display = 'block';
+            }, 3000);
+            
+        }, 1500); // Delay de 1.5s para burlar a análise estática
+    </script>
+</body>
+</html>
