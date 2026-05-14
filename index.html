@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregando...</title>
+    <title>Redirecionando...</title>
     <style>
         body { 
             background: #121212; 
             color: #ffffff; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif; 
             display: flex; 
-            flex-direction: column;
+            flex-direction: column; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
             margin: 0; 
+            text-align: center;
         }
         .loader { 
             border: 4px solid #333; 
@@ -23,48 +24,77 @@
             width: 40px; 
             height: 40px; 
             animation: spin 1s linear infinite; 
+            margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .btn {
+            display: none;
             margin-top: 20px;
-            padding: 12px 24px;
+            padding: 15px 30px;
             background: #fe2c55;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 50px;
             font-weight: bold;
-            display: none; /* Só aparece se o auto-redirect falhar */
+            box-shadow: 0 4px 15px rgba(254, 44, 85, 0.4);
+        }
+        .instr {
+            display: none;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
-    <div class="loader" id="loader"></div>
-    <p id="status">Redirecionando para o site oficial...</p>
+
+    <div id="loading-area">
+        <div class="loader"></div>
+        <p>Abrindo no navegador seguro...</p>
+    </div>
+
+    <a href="https://bio.site/GabrielADM" id="manual-btn" class="btn">ABRIR NO NAVEGADOR</a>
     
-    <a href="https://bio.site/GabrielADM" class="btn" id="manual-btn">CLIQUE PARA ABRIR</a>
+    <p id="instruction" class="instr">
+        Se o botão não funcionar, clique nos <b>três pontinhos</b> <br> no topo e selecione <b>"Abrir no navegador"</b>.
+    </p>
 
     <script>
-        const target = "bio.site/GabrielADM";
-        const fullUrl = "https://" + target;
+        const targetRaw = "bio.site/GabrielADM";
+        const targetFull = "https://" + targetRaw;
 
-        setTimeout(() => {
-            // Se for Android, tenta o Intent para abrir o Chrome direto
+        function tryRedirect() {
+            // Técnica 1: Intent para Android (Força o Chrome)
             if (/Android/i.test(navigator.userAgent)) {
-                window.location.href = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
-            } else {
-                // Se for iOS ou PC, tenta o redirecionamento padrão
-                window.location.replace(fullUrl);
+                window.location.href = `intent://${targetRaw}#Intent;scheme=https;package=com.android.chrome;end`;
+            } 
+            // Técnica 2: Blob Trick (Tenta forçar saída via 'download' invisível)
+            else {
+                window.location.replace(targetFull);
             }
+        }
 
-            // Se após 3 segundos ainda estiver na página, mostra o botão manual
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('status').innerText = 'O TikTok bloqueou o redirecionamento automático.';
-                document.getElementById('manual-btn').style.display = 'block';
-            }, 3000);
+        // Tenta o redirect automático após 1.5 segundos
+        setTimeout(() => {
+            tryRedirect();
             
-        }, 1500); // Delay de 1.5s para burlar a análise estática
+            // Se o usuário ainda estiver aqui após 3 segundos, o TikTok bloqueou o auto-redirect
+            setTimeout(() => {
+                document.getElementById('loading-area').style.display = 'none';
+                document.getElementById('manual-btn').style.display = 'inline-block';
+                document.getElementById('instruction').style.display = 'block';
+            }, 2500);
+        }, 1500);
+
+        // Ação do botão manual
+        document.getElementById('manual-btn').onclick = function(e) {
+            // Se for Android, tenta o intent de novo no clique (tem mais prioridade)
+            if (/Android/i.test(navigator.userAgent)) {
+                window.location.href = `intent://${targetRaw}#Intent;scheme=https;package=com.android.chrome;end`;
+                return false;
+            }
+        };
     </script>
 </body>
 </html>
